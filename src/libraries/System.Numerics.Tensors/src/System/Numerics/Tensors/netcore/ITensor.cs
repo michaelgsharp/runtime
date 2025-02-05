@@ -68,11 +68,6 @@ namespace System.Numerics.Tensors
         static abstract TSelf CreateUninitialized(scoped ReadOnlySpan<nint> lengths, scoped ReadOnlySpan<nint> strides, bool pinned = false);
 
         /// <summary>
-        /// Gets a value that idicates whether the collection is read-only.
-        /// </summary>
-        bool IsReadOnly { get; }
-
-        /// <summary>
         /// Gets the value at the specified indexes.
         /// </summary>
         /// <param name="indexes">The indexes to use.</param>

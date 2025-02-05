@@ -191,7 +191,7 @@ namespace System.Numerics.Tensors
         /// <value><see cref="ReadOnlySpan{T}"/> with the strides of each dimension.</value>
         ReadOnlySpan<nint> ITensor.Strides => _strides;
 
-        bool ITensor<Tensor<T>, T>.IsReadOnly => false;
+        bool ITensor.IsReadOnly => false;
 
         /// <summary>
         /// Returns a reference to specified element of the Tensor.
@@ -286,6 +286,45 @@ namespace System.Numerics.Tensors
             set
             {
                 this[indexes] = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the specified element of the Tensor.
+        /// </summary>
+        /// <param name="indexes"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Thrown when index less than 0 or index greater than or equal to FlattenedLength
+        /// </exception>
+        object ITensor.this[params ReadOnlySpan<nint> indexes] => AsReadOnlyTensorSpan()[indexes]!;
+
+        /// <summary>
+        /// Returns the specified element of the Tensor.
+        /// </summary>
+        /// <param name="indexes"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Thrown when index less than 0 or index greater than or equal to FlattenedLength
+        /// </exception>
+        object ITensor.this[params ReadOnlySpan<NIndex> indexes] => AsReadOnlyTensorSpan()[indexes]!;
+
+        /// <summary>
+        /// Returns a slice of the ReadOnlyTensor.
+        /// </summary>
+        /// <param name="ranges"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Thrown when any index is less than 0 or any index is greater than or equal to FlattenedLength
+        /// </exception>
+        ITensor ITensor.this[params ReadOnlySpan<NRange> ranges]
+        {
+            get
+            {
+                if (ranges.Length != Rank)
+                    ThrowHelper.ThrowIndexOutOfRangeException();
+
+                return Slice(ranges);
             }
         }
 
@@ -491,6 +530,56 @@ namespace System.Numerics.Tensors
         /// <returns><see cref="Tensor{T}"/> as a copy of the provided ranges.</returns>
         // REVIEW: CURRENTLY DOES A COPY.
         public Tensor<T> Slice(params ReadOnlySpan<NIndex> startIndex)
+        {
+            NRange[] ranges = new NRange[startIndex.Length];
+            for (int i = 0; i < startIndex.Length; i++)
+            {
+                ranges[i] = new NRange(startIndex[i], new NIndex(0, fromEnd: true));
+            }
+            return Slice(ranges);
+        }
+
+        /// <summary>
+        /// Forms a slice out of the given tensor
+        /// </summary>
+        /// <param name="start">The ranges for the slice</param>
+        /// <returns><see cref="ITensor"/> as a copy of the provided ranges.</returns>
+        // REVIEW: CURRENTLY DOES A COPY.
+        ITensor ITensor.Slice(params ReadOnlySpan<NRange> start)
+        {
+            if (start.Length != Lengths.Length)
+                throw new ArgumentOutOfRangeException(nameof(start), "Number of dimensions to slice does not equal the number of dimensions in the span");
+
+            TensorSpan<T> s = AsTensorSpan(start);
+            T[] values = _isPinned ? GC.AllocateArray<T>(checked((int)s.FlattenedLength), _isPinned) : (new T[s.FlattenedLength]);
+            var outTensor = new Tensor<T>(values, s.Lengths.ToArray(), _isPinned);
+            s.CopyTo(outTensor);
+            return outTensor;
+        }
+
+        /// <summary>
+        /// Forms a slice out of the given tensor
+        /// </summary>
+        /// <param name="start">The start indexes for the slice</param>
+        /// <returns><see cref="ITensor"/> as a copy of the provided ranges.</returns>
+        // REVIEW: CURRENTLY DOES A COPY.
+        ITensor ITensor.Slice(params ReadOnlySpan<nint> start)
+        {
+            NRange[] ranges = new NRange[start.Length];
+            for (int i = 0; i < start.Length; i++)
+            {
+                ranges[i] = new NRange(start[i], new NIndex(0, fromEnd: true));
+            }
+            return Slice(ranges);
+        }
+
+        /// <summary>
+        /// Forms a slice out of the given tensor
+        /// </summary>
+        /// <param name="startIndex">The start indexes for the slice</param>
+        /// <returns><see cref="ITensor"/> as a copy of the provided ranges.</returns>
+        // REVIEW: CURRENTLY DOES A COPY.
+        ITensor ITensor.Slice(params ReadOnlySpan<NIndex> startIndex)
         {
             NRange[] ranges = new NRange[startIndex.Length];
             for (int i = 0; i < startIndex.Length; i++)

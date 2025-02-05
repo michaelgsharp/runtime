@@ -34,6 +34,11 @@ namespace System.Numerics.Tensors
         int Rank { get; }
 
         /// <summary>
+        /// Gets a value that indicates whether the collection is read-only.
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
         /// Gets the length of each dimension in the tensor.
         /// </summary>
         [UnscopedRef]
@@ -44,6 +49,47 @@ namespace System.Numerics.Tensors
         /// </summary>
         [UnscopedRef]
         ReadOnlySpan<nint> Strides { get; }
+
+        /// <summary>
+        /// Gets the value at the specified indexes.
+        /// </summary>
+        /// <param name="indexes">The indexes to be used.</param>
+        object this[params scoped ReadOnlySpan<nint> indexes] { get; }
+
+        /// <summary>
+        /// Gets the value at the specified indexes.
+        /// </summary>
+        /// <param name="indexes">The indexes to be used.</param>
+        object this[params scoped ReadOnlySpan<NIndex> indexes] { get; }
+
+        /// <summary>
+        /// Gets the values at the specified ranges.
+        /// </summary>
+        /// <param name="ranges">The ranges to be used.</param>
+        ITensor this[params scoped ReadOnlySpan<NRange> ranges] { get; }
+
+        /// <summary>
+        /// Slices the tensor using the specified start indexes.
+        /// </summary>
+        /// <param name="start">The start locations to be used.</param>
+        /// <returns>The sliced tensor.</returns>
+        ITensor Slice(params scoped ReadOnlySpan<nint> start);
+
+        /// <summary>
+        /// Slices the tensor using the specified start indexes.
+        /// </summary>
+        /// <param name="startIndex">The start indexes to be used.</param>
+        /// <returns>The sliced tensor.</returns>
+        ITensor Slice(params scoped ReadOnlySpan<NIndex> startIndex);
+
+        /// <summary>
+        /// Slices the tensor using the specified ranges.
+        /// </summary>
+        /// <param name="range">The ranges to be used.</param>
+        /// <returns>The sliced tensor.</returns>
+        ITensor Slice(params scoped ReadOnlySpan<NRange> range);
+
+        // TODO: We will also want to pin this when we approve the api that does pinning.
     }
 
     /// <summary>
@@ -64,19 +110,19 @@ namespace System.Numerics.Tensors
         /// Gets the value at the specified indexes.
         /// </summary>
         /// <param name="indexes">The indexes to be used.</param>
-        T this[params scoped ReadOnlySpan<nint> indexes] { get; }
+        new T this[params scoped ReadOnlySpan<nint> indexes] { get; }
 
         /// <summary>
         /// Gets the value at the specified indexes.
         /// </summary>
         /// <param name="indexes">The indexes to be used.</param>
-        T this[params scoped ReadOnlySpan<NIndex> indexes] { get; }
+        new T this[params scoped ReadOnlySpan<NIndex> indexes] { get; }
 
         /// <summary>
         /// Gets the values at the specified ranges.
         /// </summary>
         /// <param name="ranges">The ranges to be used.</param>
-        TSelf this[params scoped ReadOnlySpan<NRange> ranges] { get; }
+        new TSelf this[params scoped ReadOnlySpan<NRange> ranges] { get; }
 
         /// <summary>
         /// Creates a read-only tensor span for the entire underlying buffer.
@@ -130,21 +176,21 @@ namespace System.Numerics.Tensors
         /// </summary>
         /// <param name="start">The start locations to be used.</param>
         /// <returns>The sliced tensor.</returns>
-        TSelf Slice(params scoped ReadOnlySpan<nint> start);
+        new TSelf Slice(params scoped ReadOnlySpan<nint> start);
 
         /// <summary>
         /// Slices the tensor using the specified start indexes.
         /// </summary>
         /// <param name="startIndex">The start indexes to be used.</param>
         /// <returns>The sliced tensor.</returns>
-        TSelf Slice(params scoped ReadOnlySpan<NIndex> startIndex);
+        new TSelf Slice(params scoped ReadOnlySpan<NIndex> startIndex);
 
         /// <summary>
         /// Slices the tensor using the specified ranges.
         /// </summary>
         /// <param name="range">The ranges to be used.</param>
         /// <returns>The sliced tensor.</returns>
-        TSelf Slice(params scoped ReadOnlySpan<NRange> range);
+        new TSelf Slice(params scoped ReadOnlySpan<NRange> range);
 
         /// <summary>
         /// Tries to copy the tensor to the specified destination. The destination tensor must be equal to or larger than the source tensor.
