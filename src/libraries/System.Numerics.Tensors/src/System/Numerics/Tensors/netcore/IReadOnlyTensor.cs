@@ -7,20 +7,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace System.Numerics.Tensors
 {
-    /// <summary>
-    /// Represents a read-only tensor.
-    /// </summary>
-    /// <typeparam name="TSelf">The type that implements this interface.</typeparam>
-    /// <typeparam name="T">The element type.</typeparam>
-    [Experimental(Experimentals.TensorTDiagId, UrlFormat = Experimentals.SharedUrlFormat)]
-    public interface IReadOnlyTensor<TSelf, T> : IEnumerable<T>
-        where TSelf : IReadOnlyTensor<TSelf, T>
-    {
-        /// <summary>
-        /// Gets an empty tensor.
-        /// </summary>
-        static abstract TSelf? Empty { get; }
 
+    /// <summary>
+    /// Represents a tensor.
+    /// </summary>
+    public interface ITensor
+    {
         /// <summary>
         /// Gets a value that indicates whether the collection is currently empty.
         /// </summary>
@@ -40,6 +32,33 @@ namespace System.Numerics.Tensors
         /// Gets the number of dimensions in the tensor.
         /// </summary>
         int Rank { get; }
+
+        /// <summary>
+        /// Gets the length of each dimension in the tensor.
+        /// </summary>
+        [UnscopedRef]
+        ReadOnlySpan<nint> Lengths { get; }
+
+        /// <summary>
+        /// Gets the stride of each dimension in the tensor.
+        /// </summary>
+        [UnscopedRef]
+        ReadOnlySpan<nint> Strides { get; }
+    }
+
+    /// <summary>
+    /// Represents a read-only tensor.
+    /// </summary>
+    /// <typeparam name="TSelf">The type that implements this interface.</typeparam>
+    /// <typeparam name="T">The element type.</typeparam>
+    [Experimental(Experimentals.TensorTDiagId, UrlFormat = Experimentals.SharedUrlFormat)]
+    public interface IReadOnlyTensor<TSelf, T> : ITensor, IEnumerable<T>
+        where TSelf : IReadOnlyTensor<TSelf, T>
+    {
+        /// <summary>
+        /// Gets an empty tensor.
+        /// </summary>
+        static abstract TSelf? Empty { get; }
 
         /// <summary>
         /// Gets the value at the specified indexes.
@@ -97,18 +116,6 @@ namespace System.Numerics.Tensors
         /// </summary>
         /// <param name="destination">The destination span where the data should be flattened to.</param>
         void FlattenTo(scoped Span<T> destination);
-
-        /// <summary>
-        /// Gets the length of each dimension in the tensor.
-        /// </summary>
-        [UnscopedRef]
-        ReadOnlySpan<nint> Lengths { get; }
-
-        /// <summary>
-        /// Gets the stride of each dimension in the tensor.
-        /// </summary>
-        [UnscopedRef]
-        ReadOnlySpan<nint> Strides { get; }
 
         /// <summary>
         /// Returns a reference to the 0th element of the tensor. If the tensor is empty, returns <see langword="null"/>.

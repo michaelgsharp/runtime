@@ -176,7 +176,7 @@ namespace System.Numerics.Tensors
         /// Gets the length of each dimension in this <see cref="Tensor{T}"/>.
         /// </summary>
         /// <value><see cref="ReadOnlySpan{T}"/> with the lengths of each dimension.</value>
-        ReadOnlySpan<nint> IReadOnlyTensor<Tensor<T>, T>.Lengths => _lengths;
+        ReadOnlySpan<nint> ITensor.Lengths => _lengths;
 
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace System.Numerics.Tensors
         /// Gets the strides of each dimension in this <see cref="Tensor{T}"/>.
         /// </summary>
         /// <value><see cref="ReadOnlySpan{T}"/> with the strides of each dimension.</value>
-        ReadOnlySpan<nint> IReadOnlyTensor<Tensor<T>, T>.Strides => _strides;
+        ReadOnlySpan<nint> ITensor.Strides => _strides;
 
         bool ITensor<Tensor<T>, T>.IsReadOnly => false;
 
